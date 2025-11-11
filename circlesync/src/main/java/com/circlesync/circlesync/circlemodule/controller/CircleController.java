@@ -2,6 +2,7 @@ package com.circlesync.circlesync.circlemodule.controller;
 
 import com.circlesync.circlesync.circlemodule.dto.AddMemberRequest;
 import com.circlesync.circlesync.circlemodule.dto.CircleResponse;
+import com.circlesync.circlesync.circlemodule.dto.CircleStatsResponse;
 import com.circlesync.circlesync.circlemodule.dto.CreateCircleRequest;
 import com.circlesync.circlesync.circlemodule.dto.JoinCircleRequest;
 import com.circlesync.circlesync.circlemodule.dto.MemberResponse;

@@ -1,3 +1,80 @@
+# Application Configuration - Multiple Database Setup
+
 spring:
   application:
     name: circlesync
+  
+  # Circle Module Database (PRIMARY)
+  datasource:
+    circle:
+      jdbc-url: jdbc:postgresql://localhost:5432/circles_db
+      username: ${CIRCLE_DB_USERNAME:postgres}
+      password: ${CIRCLE_DB_PASSWORD:postgres}
+      driver-class-name: org.postgresql.Driver
+      
+      # HikariCP Configuration for Circle DB
+      hikari:
+        pool-name: CircleHikariPool
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        auto-commit: true
+        connection-test-query: SELECT 1
+    
+    # Future Module Database (Example - uncomment when needed)
+    # habit:
+    #   jdbc-url: jdbc:postgresql://localhost:5432/circlesync_habits
+    #   username: ${HABIT_DB_USERNAME:postgres}
+    #   password: ${HABIT_DB_PASSWORD:postgres}
+    #   driver-class-name: org.postgresql.Driver
+    #   hikari:
+    #     pool-name: HabitHikariPool
+    #     maximum-pool-size: 10
+    #     minimum-idle: 5
+    #     connection-timeout: 30000
+  
+  # JPA Configuration (Global defaults)
+  jpa:
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: false
+        jdbc:
+          batch_size: 20
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.circlesync.circlesync: DEBUG
+    org.springframework.web: INFO
+    org.springframework.orm.jpa: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.zaxxer.hikari: INFO
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Management Endpoints (for health checks)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
