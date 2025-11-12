@@ -1,0 +1,193 @@
+╔════════════════════════════════════════════════════════════════════════════════════╗
+║                    CIRCLE-SYNC ARCHITECTURE DIAGRAM                                ║
+╚════════════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                          SPRING BOOT APPLICATION                                   │
+│                    (CirclesyncApplication.java:8080)                               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                  ┌─────────────────────┴─────────────────────┐
+                  │                                           │
+        ┌─────────▼──────────┐                    ┌──────────▼────────┐
+        │  CIRCLE MODULE     │                    │   TASK MODULE     │
+        │  /api/circles      │                    │   /api/tasks      │
+        └────────┬───────────┘                    └──────────┬────────┘
+                 │                                           │
+      ┌──────────┴──────────┐                     ┌──────────┴──────────┐
+      │                     │                     │                     │
+    ┌─▼────────────────┐  ┌─▼────────────────┐  ┌─▼────────────────┐  │
+    │  Controller      │  │   Service        │  │  Controller      │  │
+    │                  │  │                  │  │                  │  │
+    │ CircleController │  │ CircleService    │  │ TaskController   │  │
+    │                  │  │ CircleServiceImpl │  │                  │  │
+    │ (270 lines)      │  │ (517 lines)      │  │ (170 lines)      │  │
+    │ 16+ endpoints    │  │                  │  │ 8 endpoints      │  │
+    └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘  │
+             │                     │                      │             │
+             └─────────────────────┼──────────────────────┘             │
+                                   │                                     │
+          ┌────────────────────────┴────────────────────────┐            │
+          │                                                  │            │
+      ┌───▼─────────────┐                          ┌────────▼────────┐  │
+      │   Repository    │                          │   Repository    │  │
+      │                 │                          │                 │  │
+      │ CircleRepository│                          │ TaskRepository  │  │
+      │ CircleMember... │                          │ TaskCompletion..│  │
+      │ StreakRepository│ NO CROSS-MODULE IMPORTS  │ StreakRepository│  │
+      └───┬─────────────┘ ✅ ZERO COUPLING (code) └────────┬────────┘  │
+          │                                                   │          │
+          └───────────────────────────┬──────────────────────┘          │
+                                      │                                  │
+        ┌─────────────────────────────┴──────────────────────┐          │
+        │              DATABASE LAYER                        │          │
+        │                                                    │          │
+        │      ┌──────────────────┐  ┌──────────────────┐  │          │
+        │      │   circles_db     │  │    tasks_db      │  │          │
+        │      │  (PostgreSQL)    │  │  (PostgreSQL)    │  │          │
+        │      │                  │  │                  │  │          │
+        │      │ ┌──────────────┐ │  │ ┌──────────────┐ │  │          │
+        │      │ │   circles    │ │  │ │    tasks     │ │  │          │
+        │      │ │ 8 indexes    │ │  │ │ 7 indexes    │ │  │          │
+        │      │ └──────────────┘ │  │ └──────┬───────┘ │  │          │
+        │      │                  │  │        │         │  │          │
+        │      │ ┌──────────────┐ │  │ ┌──────▼───────┐ │  │          │
+        │      │ │circle_members│ │  │ │task_completio│ │  │          │
+        │      │ │ 7 indexes    │ │  │ │ 4 indexes    │ │  │          │
+        │      │ └──────────────┘ │  │ └──────────────┘ │  │          │
+        │      │                  │  │                  │  │          │
+        │      │ User: circles_user  │ User: tasks_user │  │          │
+        │      └──────────────────┘  └──────────────────┘  │          │
+        │                                                    │          │
+        │         Data Separation: ✅ EXCELLENT              │          │
+        │         Referential Integrity: ❌ MISSING          │          │
+        │         Cascade Delete: ❌ NOT IMPLEMENTED         │          │
+        └────────────────────────────────────────────────────┘          │
+                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                         COUPLING ANALYSIS                                          │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  Circle → Task:  ✅ NO DEPENDENCY                                                 │
+│                  • CircleServiceImpl doesn't import taskmodule                      │
+│                  • CircleRepository doesn't reference tasks                        │
+│                  • Circle deletion doesn't trigger task cleanup                    │
+│                                                                                    │
+│  Task → Circle:  ⚠️ SEMANTIC COUPLING                                             │
+│                  • Task.circleId field (UUID)                                     │
+│                  • TaskRepository queries by circleId                              │
+│                  • BUT no validation that circle exists                           │
+│                  • BUT no foreign key constraint (different DB)                   │
+│                  • BUT no exception if circle doesn't exist                       │
+│                                                                                    │
+│  Code Coupling:  ✅ ZERO                                                          │
+│                  • No cross-module imports                                        │
+│                  • Each module has its own DTOs                                   │
+│                  • Each module has its own exceptions                             │
+│                  • Each module has its own mappers                                │
+│                                                                                    │
+│  Data Coupling:  ❌ UNCONTROLLED                                                  │
+│                  • Task references Circle via circleId but no validation          │
+│                  • No distributed transaction support                             │
+│                  • No cascade delete mechanism                                    │
+│                  • Orphaned tasks possible when circle deleted                    │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                    REST API SEPARATION (✅ PERFECT)                                │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  CLIENT                                                                            │
+│    │                                                                              │
+│    ├──> GET /api/circles                  ────────────> CircleController          │
+│    │       POST /api/circles                                                      │
+│    │       PUT /api/circles/{id}                                                  │
+│    │       PATCH /api/circles/{id}                                                │
+│    │       DELETE /api/circles/{id}                                               │
+│    │       GET /api/circles/{id}/members                                          │
+│    │       POST /api/circles/{id}/members                                         │
+│    │       GET /api/circles/{id}/stats                                            │
+│    │       POST /api/circles/join/{code}                                          │
+│    │                                                                              │
+│    └──> GET /api/tasks                    ────────────> TaskController            │
+│            POST /api/tasks                                                        │
+│            PUT /api/tasks/{id}                                                    │
+│            DELETE /api/tasks/{id}                                                 │
+│            GET /api/tasks/{id}/complete                                           │
+│            GET /api/tasks/circle/{id}                                             │
+│            GET /api/tasks/{id}/streak/user/{userId}                               │
+│                                                                                    │
+│  Note: NO direct REST calls between modules                                       │
+│        NO shared REST contracts (yet)                                             │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                    INFRASTRUCTURE LAYER (READY BUT UNUSED)                         │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  Docker Compose Services:                                                        │
+│                                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ PostgreSQL Container (localhost:5432)                                   │    │
+│  │ ├─ circles_db (circles_user)                                            │    │
+│  │ ├─ tasks_db (tasks_user)                                               │    │
+│  │ └─ app1_db (app1_user) [unused]                                        │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────────┐    │
+│  │ Kafka Broker (localhost:9092) ❌ NO PRODUCER/CONSUMER CODE YET         │    │
+│  │ ├─ Schema Registry (localhost:9094)                                    │    │
+│  │ └─ Kafka UI (localhost:8081) for monitoring                            │    │
+│  └─────────────────────────────────────────────────────────────────────────┘    │
+│                                                                                    │
+│  Spring Modulith:                                                                │
+│  ├─ @ApplicationModule(id="circle-service") on Circle.java                      │
+│  ├─ @ApplicationModule(id="task-service") on Task.java                          │
+│  └─ Module boundaries documented but not fully enforced                         │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                           KEY METRICS                                              │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  Circle Module:           Task Module:          Combined:                         │
+│  • 25 Java files          • 16 Java files       • 46 total files                  │
+│  • ~2,500 LOC             • ~1,200 LOC          • ~3,700 LOC                      │
+│  • 2 entities             • 3 entities          • 5 entities                      │
+│  • 8 DTOs                 • 5 DTOs              • 13 DTOs (no sharing)            │
+│  • 7 exceptions           • 1 exception         • 8 exceptions                    │
+│  • 40+ endpoints          • 8 endpoints         • 48+ total endpoints             │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                    CURRENT STATE SUMMARY                                           │
+├────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                    │
+│  MODULE SEPARATION SCORE: 6.3/10                                                  │
+│                                                                                    │
+│  ✅ Strengths:                                                                    │
+│    • Zero code coupling (no cross-module imports)                                │
+│    • Independent databases with complete schemas                                 │
+│    • Independent services and repositories                                       │
+│    • Separate REST API endpoints                                                │
+│    • Spring Modulith infrastructure in place                                    │
+│    • Good service abstraction                                                   │
+│                                                                                    │
+│  ❌ Weaknesses:                                                                   │
+│    • Semantic coupling via Task.circleId                                        │
+│    • No validation of circle existence                                          │
+│    • No cascade delete when circle removed                                      │
+│    • No event-based communication                                               │
+│    • No distributed transactions                                                │
+│    • Kafka infrastructure unused                                                │
+│    • Task module exception handling incomplete                                  │
+│    • No inter-module API contracts                                              │
+│                                                                                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
