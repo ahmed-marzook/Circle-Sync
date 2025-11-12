@@ -97,5 +97,90 @@ VALUES
 -- Return to postgres database
 \c postgres;
 
+-- Create third database and user for tasks
+CREATE DATABASE tasks_db;
+CREATE USER tasks_user WITH ENCRYPTED PASSWORD 'tasks_secure_password';
+GRANT ALL PRIVILEGES ON DATABASE tasks_db TO tasks_user;
+
+-- Connect to tasks_db and grant schema privileges
+\c tasks_db;
+GRANT ALL ON SCHEMA public TO tasks_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO tasks_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO tasks_user;
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create tasks table
+CREATE TABLE IF NOT EXISTS tasks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    circle_id UUID NOT NULL,
+    created_by UUID NOT NULL,
+    assigned_to UUID[],
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    type VARCHAR(20) NOT NULL,
+    category VARCHAR(50),
+    frequency VARCHAR(50),
+    visibility VARCHAR(20) NOT NULL,
+    points INT DEFAULT 0,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    due_date DATE,
+    tags VARCHAR[],
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    CONSTRAINT chk_task_type CHECK (type IN ('HABIT', 'TODO')),
+    CONSTRAINT chk_task_status CHECK (status IN ('ACTIVE', 'COMPLETED', 'ARCHIVED', 'DELETED')),
+    CONSTRAINT chk_task_visibility CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'CIRCLE'))
+);
+
+-- Create task_completions table
+CREATE TABLE IF NOT EXISTS task_completions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    task_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    CONSTRAINT fk_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
+-- Create streaks table
+CREATE TABLE IF NOT EXISTS streaks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    task_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    current_streak INT NOT NULL DEFAULT 0,
+    longest_streak INT NOT NULL DEFAULT 0,
+    last_completed_date DATE,
+    updated_at TIMESTAMP,
+    CONSTRAINT fk_task_streak FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    CONSTRAINT uq_task_user_streak UNIQUE (task_id, user_id)
+);
+
+-- Create indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_tasks_circle_id ON tasks(circle_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_created_by ON tasks(created_by);
+CREATE INDEX IF NOT EXISTS idx_tasks_type ON tasks(type);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks USING GIN(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_task_completions_task_id ON task_completions(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_completions_user_id ON task_completions(user_id);
+CREATE INDEX IF NOT EXISTS idx_task_completions_date ON task_completions(date);
+CREATE INDEX IF NOT EXISTS idx_streaks_task_id ON streaks(task_id);
+CREATE INDEX IF NOT EXISTS idx_streaks_user_id ON streaks(user_id);
+CREATE INDEX IF NOT EXISTS idx_streaks_task_user ON streaks(task_id, user_id);
+
+-- Create triggers for updated_at timestamps
+CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_streaks_updated_at BEFORE UPDATE ON streaks
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Return to postgres database
+\c postgres;
+
 -- Print success message
 SELECT 'Databases and users created successfully!' AS status;
