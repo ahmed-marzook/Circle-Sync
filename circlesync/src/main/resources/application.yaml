@@ -22,7 +22,25 @@ spring:
         max-lifetime: 1800000
         auto-commit: true
         connection-test-query: SELECT 1
-    
+
+    # Task Module Database
+    task:
+      jdbc-url: jdbc:postgresql://localhost:5432/tasks_db
+      username: ${TASK_DB_USERNAME:postgres}
+      password: ${TASK_DB_PASSWORD:postgres}
+      driver-class-name: org.postgresql.Driver
+
+      # HikariCP Configuration for Task DB
+      hikari:
+        pool-name: TaskHikariPool
+        maximum-pool-size: 10
+        minimum-idle: 5
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        auto-commit: true
+        connection-test-query: SELECT 1
+
     # Future Module Database (Example - uncomment when needed)
     # habit:
     #   jdbc-url: jdbc:postgresql://localhost:5432/circlesync_habits
