@@ -2,10 +2,11 @@
   "name": ".",
   "private": true,
   "type": "module",
-  "main": "src/electron/main.js",
+  "main": "dist-electron/main.js",
   "scripts": {
     "dev:react": "vite --port 3000",
     "dev:electron": "electron .",
+    "transpile:electron": "tsc --project src/electron/tsconfig.json",
     "build": "vite build && tsc",
     "serve": "vite preview",
     "test": "vitest run",
