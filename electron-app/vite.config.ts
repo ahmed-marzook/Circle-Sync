@@ -25,6 +25,7 @@ export default defineConfig({
     },
   },
   base: './',
+  publicDir: 'src/ui/assets',
   build: {
     outDir: 'dist-react',
   },
