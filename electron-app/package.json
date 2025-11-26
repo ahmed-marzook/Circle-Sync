@@ -1,11 +1,11 @@
 {
   "name": "circle-sync",
-  "description": "Circle Sync desktop app",
   "version": "0.0.0",
+  "private": true,
+  "description": "Circle Sync desktop app",
   "author": {
     "name": "Ahmed Marzook"
   },
-  "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
