@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import path, { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isDev } from './util.js'
 
 type test = string
 
@@ -13,7 +14,11 @@ function createWindow() {
     // }
   })
 
-  win.loadFile(path.join(app.getAppPath(), '/dist-react/index.html'))
+  if (isDev()) {
+    win.loadURL('http://localhost:5123')
+  } else {
+    win.loadFile(path.join(app.getAppPath(), '/dist-react/index.html'))
+  }
 }
 
 app.whenReady().then(() => {
