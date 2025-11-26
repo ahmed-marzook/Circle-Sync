@@ -1,0 +1,41 @@
+{
+    "appId": "com.sabrlabs.circle-sync",
+    "icon": "./public/tanstack-circle-logo.png",
+    "productName": "My App",
+    "directories": {
+        "output": "dist",
+        "buildResources": "assets"
+    },
+    "files": [
+        "dist-electron",
+        "dist-react",
+        "package.json"
+    ],
+    "asarUnpack": [
+        "node_modules/@esbuild/**/*"
+    ],
+    "win": {
+        "target": [
+            "nsis",
+            "portable",
+            "msi"
+        ]
+    },
+    "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+        "target": [
+            "dmg",
+            "zip"
+        ]
+    },
+    "linux": {
+        "target": [
+            "AppImage",
+            "deb"
+        ],
+        "category": "Utility"
+    }
+}

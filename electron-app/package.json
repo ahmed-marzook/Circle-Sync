@@ -1,20 +1,28 @@
 {
-  "name": ".",
+  "name": "circle-sync",
+  "description": "Circle Sync desktop app",
+  "version": "0.0.0",
+  "author": {
+    "name": "Ahmed Marzook"
+  },
   "private": true,
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev:react": "vite --port 3000",
-    "dev:electron": "electron .",
-    "transpile:electron": "tsc --project src/electron/tsconfig.json",
     "build": "vite build && tsc",
-    "serve": "vite preview",
-    "test": "vitest run",
-    "lint": "eslint",
-    "format": "prettier",
+    "build-storybook": "storybook build",
     "check": "prettier --write . && eslint --fix",
+    "dev:electron": "electron .",
+    "dev:react": "vite --port 3000",
+    "dist:linux": "npm run transpile:electron && npm run build && electron-builder --config electron-builder.json --linux --x64",
+    "dist:mac": "npm run transpile:electron && npm run build && electron-builder --config electron-builder.json --mac --arm64",
+    "dist:win": "npm run transpile:electron && npm run build && electron-builder --config electron-builder.json --win --x64",
+    "format": "prettier",
+    "lint": "eslint",
+    "serve": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "test": "vitest run",
+    "transpile:electron": "tsc --project src/electron/tsconfig.json"
   },
   "dependencies": {
     "@storybook/react-vite": "^9.1.9",
@@ -45,6 +53,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "electron": "^39.1.2",
+    "electron-builder": "^26.0.12",
     "jsdom": "^27.0.0",
     "prettier": "^3.5.3",
     "typescript": "^5.7.2",
