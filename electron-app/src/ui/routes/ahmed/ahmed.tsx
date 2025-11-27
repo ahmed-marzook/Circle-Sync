@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { circleService } from '../../services/api/circleService'
 import type { Circle } from '../../services/api/circleService'
+import { Textarea } from '@/ui/components/ui/textarea'
+import { Button } from '@/ui/components/ui/button'
 
 export const Route = createFileRoute('/ahmed/ahmed')({
   component: RouteComponent,
@@ -119,6 +121,9 @@ function RouteComponent() {
             </div>
           )}
         </div>
+
+        <Textarea placeholder="Type your message here." />
+        <Button>Click me</Button>
       </div>
     </div>
   )
