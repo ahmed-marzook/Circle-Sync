@@ -34,7 +34,12 @@ public interface CircleRepository extends JpaRepository<Circle, UUID> {
     List<Circle> findByPrivacy(String privacy);
 
     /**
-     * Search circles with optional filters
+     * Search circles with optional filters.
+     *
+     * @param name      The name of the circle to search for.
+     * @param circleType The type of the circle to filter by.
+     * @param privacy    The privacy level of the circle.
+     * @return A list of circles matching the criteria.
      */
     @Query("SELECT c FROM Circle c WHERE " +
             "(:name IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +

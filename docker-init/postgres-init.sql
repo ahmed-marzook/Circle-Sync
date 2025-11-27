@@ -66,21 +66,6 @@ CREATE INDEX IF NOT EXISTS idx_circle_members_circle_id ON circle_members(circle
 CREATE INDEX IF NOT EXISTS idx_circle_members_user_id ON circle_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_circle_members_role ON circle_members(role);
 
--- Create triggers for updated_at timestamps
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER update_circles_updated_at BEFORE UPDATE ON circles
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_circle_members_updated_at BEFORE UPDATE ON circle_members
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 -- Insert sample data (optional, for development)
 -- Uncomment if you want seed data
 /*
@@ -171,13 +156,6 @@ CREATE INDEX IF NOT EXISTS idx_task_completions_date ON task_completions(date);
 CREATE INDEX IF NOT EXISTS idx_streaks_task_id ON streaks(task_id);
 CREATE INDEX IF NOT EXISTS idx_streaks_user_id ON streaks(user_id);
 CREATE INDEX IF NOT EXISTS idx_streaks_task_user ON streaks(task_id, user_id);
-
--- Create triggers for updated_at timestamps
-CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_streaks_updated_at BEFORE UPDATE ON streaks
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Return to postgres database
 \c postgres;

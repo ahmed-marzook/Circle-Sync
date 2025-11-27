@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 
 import { useState } from 'react'
 import { BookOpen, Home, Menu, Network, X } from 'lucide-react'
-import logoWhite from '../assets/tanstack-word-logo-white.svg'
+import logoWhite from '/tanstack-word-logo-white.svg'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)

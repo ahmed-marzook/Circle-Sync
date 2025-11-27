@@ -188,7 +188,7 @@ public class CircleServiceImpl implements CircleService {
         log.info("Searching circles with filters - name: {}, type: {}, privacy: {}",
                 name, circleType, privacy);
 
-        List<Circle> circles = circleRepository.searchCircles(name, circleType, privacy);
+        List<Circle> circles = circleRepository.findAll();
 
         UUID currentUserId = getCurrentUserId();
         return circles.stream()
