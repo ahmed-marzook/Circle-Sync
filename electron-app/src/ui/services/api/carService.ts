@@ -36,14 +36,22 @@ interface IpcResponse<T = any> {
   error?: string
 }
 
-// Type-safe wrapper for IPC calls
+// Type-safe wrapper for IPC calls using the secure contextBridge API
 const ipcInvoke = async <T = any>(
   channel: string,
   ...args: any[]
 ): Promise<IpcResponse<T>> => {
-  // Since nodeIntegration is true, we can access electron directly
-  const { ipcRenderer } = window.require('electron')
-  return ipcRenderer.invoke(channel, ...args)
+  // Use the secure electronAPI exposed via contextBridge
+  const [namespace, method] = channel.split(':')
+
+  if (namespace === 'car' && window.electronAPI?.car) {
+    const carAPI = window.electronAPI.car as any
+    if (typeof carAPI[method] === 'function') {
+      return carAPI[method](...args)
+    }
+  }
+
+  throw new Error(`Unknown IPC channel: ${channel}`)
 }
 
 export class CarService {
