@@ -1,40 +1,7 @@
 // Car service for Electron IPC communication with the main process
 // This service provides a clean API for the React UI to interact with the car database
 
-export interface Car {
-  id: number
-  make: string
-  model: string
-  year: number
-  color?: string
-  vin?: string
-  mileage?: number
-  created_at?: string
-}
-
-export interface CarCreateInput {
-  make: string
-  model: string
-  year: number
-  color?: string
-  vin?: string
-  mileage?: number
-}
-
-export interface CarUpdateInput {
-  make?: string
-  model?: string
-  year?: number
-  color?: string
-  vin?: string
-  mileage?: number
-}
-
-interface IpcResponse<T = any> {
-  success: boolean
-  data?: T
-  error?: string
-}
+import { Car, CarCreateInput, CarUpdateInput, IpcResponse } from '@/shared'
 
 // Type-safe wrapper for IPC calls using the secure contextBridge API
 const ipcInvoke = async <T = any>(
