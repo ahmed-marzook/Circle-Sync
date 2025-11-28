@@ -9,6 +9,8 @@
   "type": "module",
   "main": "dist-electron/electron/main.js",
   "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
     "build": "vite build && tsc",
     "build-storybook": "storybook build",
     "check": "prettier --write . && eslint --fix",

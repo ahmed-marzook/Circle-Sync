@@ -3,6 +3,10 @@ import path from 'node:path'
 import { isDev } from './util.js'
 import { initDatabase, closeDatabase } from './database.js'
 import { registerCarHandlers } from './ipc/carHandlers.js'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -11,7 +15,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     },
   })
 
