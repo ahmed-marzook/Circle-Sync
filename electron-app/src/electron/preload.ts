@@ -37,7 +37,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       if (!validationResult.success) {
         return Promise.resolve({
           success: false,
-          error: `Invalid car data: ${validationResult.error.errors.map((e) => e.message).join(', ')}`,
+          error: `Invalid car data: ${validationResult.error.issues.map((e) => e.message).join(', ')}`,
         } as IpcResponse<Car>)
       }
       return ipcRenderer.invoke('car:create', validationResult.data)
@@ -57,7 +57,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       if (!validationResult.success) {
         return Promise.resolve({
           success: false,
-          error: `Invalid car data: ${validationResult.error.errors.map((e) => e.message).join(', ')}`,
+          error: `Invalid car data: ${validationResult.error.issues.map((e) => e.message).join(', ')}`,
         } as IpcResponse<Car>)
       }
       return ipcRenderer.invoke('car:update', id, validationResult.data)
