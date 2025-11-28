@@ -17,6 +17,31 @@ export interface IpcResponse<T = any> {
   error?: string
 }
 
+export type Statistics = {
+  cpuUsage: number
+  ramUsage: number
+  storageUsage: number
+}
+
+export type StaticData = {
+  totalStorage: number
+  cpuModel: string
+  totalMemoryGB: number
+}
+
+export type View = 'CPU' | 'RAM' | 'STORAGE'
+
+export type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE'
+
+export type EventPayloadMapping = {
+  statistics: Statistics
+  getStaticData: StaticData
+  changeView: View
+  sendFrameAction: FrameWindowAction
+}
+
+export type UnsubscribeFunction = () => void
+
 /**
  * ElectronAPI interface exposed to the renderer process via contextBridge
  * This defines the secure API that the renderer can use to communicate with the main process

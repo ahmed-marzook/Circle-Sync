@@ -3,7 +3,12 @@
 
 // Car service for Electron IPC communication with the main process
 // This service provides a clean API for the React UI to interact with the car database
-import type { Car, CarCreateInput, CarUpdateInput, IpcResponse } from '@/shared'
+import type {
+  Car,
+  CarCreateInput,
+  CarUpdateInput,
+  IpcResponse,
+} from '@shared/index'
 
 // Type-safe wrapper for IPC calls using the secure contextBridge API
 const ipcInvoke = async <T = any>(

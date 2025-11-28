@@ -1,7 +1,6 @@
 {
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "src",
     "eslint.config.js",
     "prettier.config.js",
     "vite.config.js"
@@ -28,7 +27,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@ui/*": ["./src/ui/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@electron/*": ["./src/electron/*"]
     }
   }
 }

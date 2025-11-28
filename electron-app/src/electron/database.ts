@@ -1,32 +1,7 @@
-import { app } from 'electron'
-import path from 'node:path'
-import fs from 'node:fs'
 import Database from 'better-sqlite3'
-import { isDev } from './util.js'
+import { getDatabasePath } from './pathResolver.js'
 
 let db: Database.Database
-
-/**
- * Get the database file path based on environment
- * Development: Store in project root
- * Production: Store in user data directory
- */
-function getDatabasePath(): string {
-  if (isDev()) {
-    // Dev: Store in project root
-    return 'circle-sync.db'
-  } else {
-    // Production: Store in user data directory
-    const userDataPath = app.getPath('userData')
-
-    // Ensure directory exists
-    if (!fs.existsSync(userDataPath)) {
-      fs.mkdirSync(userDataPath, { recursive: true })
-    }
-
-    return path.join(userDataPath, 'circle-sync.db')
-  }
-}
 
 /**
  * Initialize database schema

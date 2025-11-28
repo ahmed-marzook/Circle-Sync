@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { circleService } from '../../services/api/circleService'
 import type { Circle } from '../../services/api/circleService'
 import { carService } from '../../services/api/carService'
-import type { Car } from '@/shared'
+import type { Car } from '@shared/index'
 
 export const Route = createFileRoute('/ahmed/ahmed')({
   component: RouteComponent,

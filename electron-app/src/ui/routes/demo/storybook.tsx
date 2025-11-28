@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { Dialog } from '@/ui/components/storybook/dialog'
-import { Input } from '@/ui/components/storybook/input'
-import { RadioGroup } from '@/ui/components/storybook/radio-group'
-import { Slider } from '@/ui/components/storybook/slider'
-import { Button } from '@/ui/components/storybook/button'
+import { Dialog } from '@ui/components/storybook/dialog'
+import { Input } from '@ui/components/storybook/input'
+import { RadioGroup } from '@ui/components/storybook/radio-group'
+import { Slider } from '@ui/components/storybook/slider'
+import { Button } from '@ui/components/storybook/button'
 
 export const Route = createFileRoute('/demo/storybook')({
   component: StorybookDemo,
