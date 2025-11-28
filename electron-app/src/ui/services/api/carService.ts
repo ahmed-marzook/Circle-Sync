@@ -1,13 +1,11 @@
 // Car service for Electron IPC communication with the main process
 // This service provides a clean API for the React UI to interact with the car database
 
-import type {
+import {
   Car,
   CarCreateInput,
   CarUpdateInput,
   IpcResponse,
-} from '@/shared'
-import {
   CarSchema,
   IpcResponseSchema,
 } from '@/shared'
