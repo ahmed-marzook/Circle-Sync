@@ -3,7 +3,6 @@ import { api } from './api'
 import {
   CircleSchema,
   CircleCreateInputSchema,
-  MemberSchema,
 } from '@/shared/types/schemas'
 
 // Simple types for Circle and Member
@@ -64,7 +63,7 @@ export class CircleService {
       if (!inputValidation.success) {
         console.warn(
           '[CircleService] Invalid create payload, using as-is:',
-          inputValidation.error.errors
+          inputValidation.error.issues
         )
         // Continue anyway for fallback compatibility
       }
