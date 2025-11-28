@@ -7,7 +7,7 @@
     "name": "Ahmed Marzook"
   },
   "type": "module",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "scripts": {
     "build": "vite build && tsc",
     "build-storybook": "storybook build",

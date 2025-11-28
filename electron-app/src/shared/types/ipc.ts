@@ -2,7 +2,10 @@
  * Shared IPC types used by both main and renderer processes
  */
 
-import { Car, CarCreateInput, CarUpdateInput } from './car.js'
+/**
+ * Shared IPC types used by both main and renderer processes
+ */
+import type { Car, CarCreateInput, CarUpdateInput } from './car.js'
 
 /**
  * Standard IPC response wrapper

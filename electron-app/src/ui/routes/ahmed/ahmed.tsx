@@ -3,9 +3,7 @@ import { useEffect, useState } from 'react'
 import { circleService } from '../../services/api/circleService'
 import type { Circle } from '../../services/api/circleService'
 import { carService } from '../../services/api/carService'
-import type { Car } from '../../services/api/carService'
-import { Textarea } from '@/ui/components/ui/textarea'
-import { Button } from '@/ui/components/ui/button'
+import type { Car } from '@/shared'
 
 export const Route = createFileRoute('/ahmed/ahmed')({
   component: RouteComponent,
@@ -141,7 +139,8 @@ function RouteComponent() {
                     </span>
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium">Year:</span> {selectedCar.year}
+                    <span className="font-medium">Year:</span>{' '}
+                    {selectedCar.year}
                   </div>
                   <div className="text-sm">
                     <span className="font-medium">Color:</span>{' '}
@@ -172,7 +171,9 @@ function RouteComponent() {
       {/* Circle Service Demo Section */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <h2 className="text-lg font-semibold">CircleService Demo (In-Memory)</h2>
+          <h2 className="text-lg font-semibold">
+            CircleService Demo (In-Memory)
+          </h2>
           <button
             className="px-2 py-1 rounded bg-green-600 text-white text-sm"
             onClick={handleSeed}
@@ -193,68 +194,68 @@ function RouteComponent() {
           </button>
         </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <div className="text-sm text-muted-foreground mb-2">
-            Circles (in-memory)
-          </div>
-          {circles.length === 0 ? (
-            <div className="text-sm text-gray-500">
-              No circles yet. Click <b>Seed Circle</b> or <b>Create Circle</b>.
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-sm text-muted-foreground mb-2">
+              Circles (in-memory)
             </div>
-          ) : (
-            <ul className="space-y-2">
-              {circles.map((c) => (
-                <li
-                  key={c.id}
-                  className="border rounded p-2 hover:shadow cursor-pointer"
-                  onClick={() => setSelected(c)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">{c.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {c.privacy} • {c.circleType}
+            {circles.length === 0 ? (
+              <div className="text-sm text-gray-500">
+                No circles yet. Click <b>Seed Circle</b> or <b>Create Circle</b>
+                .
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {circles.map((c) => (
+                  <li
+                    key={c.id}
+                    className="border rounded p-2 hover:shadow cursor-pointer"
+                    onClick={() => setSelected(c)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-semibold">{c.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {c.privacy} • {c.circleType}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {c.members?.length ?? 0} members
                       </div>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {c.members?.length ?? 0} members
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div>
-          <div className="text-sm text-muted-foreground mb-2">
-            Selected circle
-          </div>
-          {selected ? (
-            <div className="border rounded p-2">
-              <div className="font-semibold">{selected.name}</div>
-              <div className="text-xs text-gray-500 mb-2">
-                {selected.privacy} • {selected.circleType}
-              </div>
-              <div className="text-sm mb-2">{selected.description}</div>
-              <div className="text-xs font-medium">Members</div>
-              <ul className="mt-2">
-                {selected.members?.map((m) => (
-                  <li key={m.userId} className="text-sm">
-                    {m.nickname || m.userName}{' '}
-                    <span className="text-xs text-gray-400">({m.role})</span>
                   </li>
                 ))}
               </ul>
-            </div>
-          ) : (
-            <div className="text-sm text-gray-500">
-              Click a circle to see details
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
+          <div>
+            <div className="text-sm text-muted-foreground mb-2">
+              Selected circle
+            </div>
+            {selected ? (
+              <div className="border rounded p-2">
+                <div className="font-semibold">{selected.name}</div>
+                <div className="text-xs text-gray-500 mb-2">
+                  {selected.privacy} • {selected.circleType}
+                </div>
+                <div className="text-sm mb-2">{selected.description}</div>
+                <div className="text-xs font-medium">Members</div>
+                <ul className="mt-2">
+                  {selected.members?.map((m) => (
+                    <li key={m.userId} className="text-sm">
+                      {m.nickname || m.userName}{' '}
+                      <span className="text-xs text-gray-400">({m.role})</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500">
+                Click a circle to see details
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
