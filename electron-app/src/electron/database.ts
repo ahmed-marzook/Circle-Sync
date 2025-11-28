@@ -31,6 +31,12 @@ function initSchema() {
     )
   `)
 
+  // 🔥 Create indexes for faster queries
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_cars_make ON cars(make);
+    CREATE INDEX IF NOT EXISTS idx_cars_year ON cars(year);
+  `)
+
   console.log('Database schema initialized')
 }
 
@@ -130,7 +136,27 @@ export function initDatabase() {
   const dbPath = getDatabasePath()
   console.log('Database location:', dbPath)
 
+  // 🔥 Remove verbose logging in production for better performance
+  // db = new Database(dbPath, { verbose: console.log })
   db = new Database(dbPath, { verbose: console.log })
+
+  // 🔥 Performance optimizations
+  // WAL mode allows multiple readers and better concurrency
+  db.pragma('journal_mode = WAL')
+
+  // Increase cache size from default 2MB to 10MB (10000 pages * 1KB)
+  db.pragma('cache_size = 10000')
+
+  // Store temporary tables in memory instead of disk
+  db.pragma('temp_store = MEMORY')
+
+  // Synchronous mode: NORMAL is faster and safe with WAL mode
+  db.pragma('synchronous = NORMAL')
+
+  // Memory-mapped I/O for faster reads (30MB)
+  db.pragma('mmap_size = 30000000')
+
+  console.log('Database optimizations applied')
 
   // Initialize schema first
   initSchema()
@@ -157,6 +183,8 @@ export function getDatabase(): Database.Database {
 export function closeDatabase() {
   try {
     if (db) {
+      // 🔥 Run checkpoint before closing to ensure WAL data is written
+      db.pragma('wal_checkpoint(TRUNCATE)')
       db.close()
       console.log('Database connection closed')
     }
