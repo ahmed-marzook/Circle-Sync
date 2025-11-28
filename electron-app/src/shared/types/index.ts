@@ -5,3 +5,4 @@
 
 export * from './car.js'
 export * from './ipc.js'
+export * from './schemas.js'

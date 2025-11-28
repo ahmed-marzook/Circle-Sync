@@ -1,5 +1,10 @@
 // Import `api` to call the backend; if the backend is down we'll fall back to in-memory store
 import { api } from './api'
+import {
+  CircleSchema,
+  CircleCreateInputSchema,
+  MemberSchema,
+} from '@/shared/types/schemas'
 
 // Simple types for Circle and Member
 export interface Member {
@@ -54,17 +59,39 @@ export class CircleService {
   // In future, this method can call `api.post('/circles', body)`.
   async createCircle(payload: Partial<Circle>): Promise<Circle> {
     try {
+      // Validate input payload
+      const inputValidation = CircleCreateInputSchema.partial().safeParse(payload)
+      if (!inputValidation.success) {
+        console.warn(
+          '[CircleService] Invalid create payload, using as-is:',
+          inputValidation.error.errors
+        )
+        // Continue anyway for fallback compatibility
+      }
+
       // Call the remote API (POST /circles)
-      const res = await api.post('/circles', payload)
+      const res = await api.post('/circles', inputValidation.success ? inputValidation.data : payload)
       // Some APIs return 201 for created resources
       if (res?.data) {
+        // Validate API response
+        const responseValidation = CircleSchema.safeParse(res.data)
+        if (!responseValidation.success) {
+          console.warn(
+            '[CircleService] Invalid API response format:',
+            responseValidation.error
+          )
+          // Still cache and return for compatibility
+        }
+
+        const validatedCircle = responseValidation.success ? responseValidation.data : res.data
+
         // Optionally keep in-memory cache in sync
         try {
-          inMemoryStore[res.data.id] = res.data
+          inMemoryStore[validatedCircle.id] = validatedCircle
         } catch (err) {
           // ignore cache errors
         }
-        return res.data
+        return validatedCircle
       }
     } catch (err) {
       console.warn(
@@ -100,8 +127,19 @@ export class CircleService {
     try {
       const res = await api.get(`/circles/${encodeURIComponent(circleId)}`)
       if (res?.data) {
-        inMemoryStore[res.data.id] = res.data
-        return res.data
+        // Validate API response
+        const responseValidation = CircleSchema.safeParse(res.data)
+        if (!responseValidation.success) {
+          console.warn(
+            '[CircleService] Invalid API response format:',
+            responseValidation.error
+          )
+          // Still cache and return for compatibility
+        }
+
+        const validatedCircle = responseValidation.success ? responseValidation.data : res.data
+        inMemoryStore[validatedCircle.id] = validatedCircle
+        return validatedCircle
       }
     } catch (err) {
       console.warn(
@@ -122,11 +160,23 @@ export class CircleService {
     try {
       const res = await api.get('/circles')
       if (Array.isArray(res?.data)) {
+        // Validate API response array
+        const responseValidation = CircleSchema.array().safeParse(res.data)
+        if (!responseValidation.success) {
+          console.warn(
+            '[CircleService] Invalid API response format:',
+            responseValidation.error
+          )
+          // Still cache and return for compatibility
+        }
+
+        const validatedCircles = responseValidation.success ? responseValidation.data : res.data
+
         // Keep cache in memory in case of offline fallback
-        for (const c of res.data) {
+        for (const c of validatedCircles) {
           inMemoryStore[c.id] = c
         }
-        return res.data
+        return validatedCircles
       }
     } catch (err) {
       console.warn(

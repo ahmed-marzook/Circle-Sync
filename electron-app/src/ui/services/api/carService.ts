@@ -1,7 +1,14 @@
 // Car service for Electron IPC communication with the main process
 // This service provides a clean API for the React UI to interact with the car database
 
-import { Car, CarCreateInput, CarUpdateInput, IpcResponse } from '@/shared'
+import {
+  Car,
+  CarCreateInput,
+  CarUpdateInput,
+  IpcResponse,
+  CarSchema,
+  IpcResponseSchema,
+} from '@/shared'
 
 // Type-safe wrapper for IPC calls using the secure contextBridge API
 const ipcInvoke = async <T = any>(
@@ -28,10 +35,23 @@ export class CarService {
   async getAllCars(): Promise<Car[]> {
     try {
       const response = await ipcInvoke<Car[]>('car:getAll')
-      if (response.success && response.data) {
-        return response.data
+
+      // Validate IPC response structure
+      const responseValidation = IpcResponseSchema(CarSchema.array()).safeParse(response)
+      if (!responseValidation.success) {
+        console.error(
+          '[CarService] Invalid response format:',
+          responseValidation.error
+        )
+        return []
       }
-      console.error('[CarService] Failed to fetch cars:', response.error)
+
+      const validatedResponse = responseValidation.data
+      if (validatedResponse.success && validatedResponse.data) {
+        return validatedResponse.data
+      }
+
+      console.error('[CarService] Failed to fetch cars:', validatedResponse.error)
       return []
     } catch (error) {
       console.error('[CarService] Error fetching cars:', error)
@@ -45,10 +65,23 @@ export class CarService {
   async getCarById(id: number): Promise<Car | null> {
     try {
       const response = await ipcInvoke<Car>('car:getById', id)
-      if (response.success && response.data) {
-        return response.data
+
+      // Validate IPC response structure
+      const responseValidation = IpcResponseSchema(CarSchema).safeParse(response)
+      if (!responseValidation.success) {
+        console.error(
+          '[CarService] Invalid response format:',
+          responseValidation.error
+        )
+        return null
       }
-      console.error('[CarService] Failed to fetch car:', response.error)
+
+      const validatedResponse = responseValidation.data
+      if (validatedResponse.success && validatedResponse.data) {
+        return validatedResponse.data
+      }
+
+      console.error('[CarService] Failed to fetch car:', validatedResponse.error)
       return null
     } catch (error) {
       console.error('[CarService] Error fetching car:', error)
@@ -62,10 +95,23 @@ export class CarService {
   async createCar(carData: CarCreateInput): Promise<Car | null> {
     try {
       const response = await ipcInvoke<Car>('car:create', carData)
-      if (response.success && response.data) {
-        return response.data
+
+      // Validate IPC response structure
+      const responseValidation = IpcResponseSchema(CarSchema).safeParse(response)
+      if (!responseValidation.success) {
+        console.error(
+          '[CarService] Invalid response format:',
+          responseValidation.error
+        )
+        return null
       }
-      console.error('[CarService] Failed to create car:', response.error)
+
+      const validatedResponse = responseValidation.data
+      if (validatedResponse.success && validatedResponse.data) {
+        return validatedResponse.data
+      }
+
+      console.error('[CarService] Failed to create car:', validatedResponse.error)
       return null
     } catch (error) {
       console.error('[CarService] Error creating car:', error)
@@ -79,10 +125,23 @@ export class CarService {
   async updateCar(id: number, carData: CarUpdateInput): Promise<Car | null> {
     try {
       const response = await ipcInvoke<Car>('car:update', id, carData)
-      if (response.success && response.data) {
-        return response.data
+
+      // Validate IPC response structure
+      const responseValidation = IpcResponseSchema(CarSchema).safeParse(response)
+      if (!responseValidation.success) {
+        console.error(
+          '[CarService] Invalid response format:',
+          responseValidation.error
+        )
+        return null
       }
-      console.error('[CarService] Failed to update car:', response.error)
+
+      const validatedResponse = responseValidation.data
+      if (validatedResponse.success && validatedResponse.data) {
+        return validatedResponse.data
+      }
+
+      console.error('[CarService] Failed to update car:', validatedResponse.error)
       return null
     } catch (error) {
       console.error('[CarService] Error updating car:', error)
